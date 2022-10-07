@@ -8,7 +8,7 @@ print(type(res[0]))
 print(res)
 
 """
-TRY 
+
 
 This function retrieves the total distance that the specified user has driven. E.g.
 print("Test 1:", distance_of_user("user123"))
