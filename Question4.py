@@ -1,14 +1,11 @@
 import sqlite3
+import pandas as pd
+
 db = sqlite3.connect("bikecompany.db")
 db.isolation_level = None
 
-s = db.execute('SELECT * FROM Bikes')
-res = s.fetchmany(5)
-print(type(res[0]))
-print(res)
 
 """
-
 
 This function retrieves the total distance that the specified user has driven. E.g.
 print("Test 1:", distance_of_user("user123"))
@@ -16,9 +13,14 @@ and if implemented correctly it should output:
 Test 1: 130160
 
 """
-
-def distance_of_user(user):
-    pass
+def total_distance(user):
+    df = pd.read_sql_query(
+        r"""SELECT name,SUM(distance) AS Totaldistance 
+        FROM Trips 
+        INNER JOIN Users ON Trips.user_id = Users.id 
+        GROUP BY user_id""", db)
+    df = df.set_index('name')
+    return print(f'The total distance of the {user} is: {df.at[user, "Totaldistance"]}')
 
 
 """
@@ -29,7 +31,15 @@ Test 2: 17.35
 """
 
 def speed_of_user(user):
-    pass
+    df1 = pd.read_sql_query(
+        r"""SELECT User, all_distance / all_duration AS Speed
+        FROM (SELECT Users.name User,SUM(distance)/1000.00 all_distance ,SUM(duration)/60.00 all_duration
+        FROM Trips
+        INNER JOIN Users
+        ON Users.id = Trips.user_id
+        GROUP BY Users.name)""", db)
+    df1 = df1.set_index('User')
+    return print(f'The speed of the {user} is: {df1.at[user, "Speed"]}')
 
 """
 
@@ -39,8 +49,10 @@ and if implemented correctly it should output:
 Test 3: [('city1', 58655), ('city10', 59296), ('city2', 60947)…]
 """
 
+
 def duration_in_each_city(day):
     pass
+
 
 """
 
@@ -51,8 +63,10 @@ Test 4: 43102
 
 """
 
+
 def users_in_city(city):
     pass
+
 
 """
 
@@ -62,8 +76,12 @@ and if implemented correctly it should output:
 Test 5: [('2021-06-01', 3362), ('2021-06-02', 3345),…]
 
 """
+
+
 def trips_on_each_day(city):
     pass
+
+
 """
 
 This function retrieves the most popular starting location and the number of trips starting from that stop.
@@ -76,3 +94,10 @@ Test 6: ('stop419', 1073)
 
 def most_popular_start(city):
     pass
+
+# Testing section
+
+if __name__ == "__main__":
+    test_user = "user123"
+    total_distance(test_user)
+    speed_of_user(test_user)
