@@ -18,7 +18,7 @@ Test 1: 130160
 def distance_of_user(user):
 
    dist_of_user = db.execute(
-        r"""SELECT SUM(distance)
+        f"""SELECT SUM(distance)
         FROM Trips 
         INNER JOIN Users ON Trips.user_id = Users.id 
         WHERE Users.name=?;""",[user]).fetchone()
@@ -34,7 +34,7 @@ Test 2: 17.35
 
 def speed_of_user(user):
     avg_spd_of_user = db.execute(
-        r"""SELECT ROUND((all_distance / all_duration),2)
+        f"""SELECT ROUND((all_distance / all_duration),2)
         FROM (SELECT Users.name,SUM(distance)/1000.00 all_distance ,SUM(duration)/60.00 all_duration
         FROM Trips
         INNER JOIN Users ON Users.id = Trips.user_id
