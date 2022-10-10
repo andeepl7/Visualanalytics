@@ -1,5 +1,6 @@
 import sqlite3
 import pandas as pd
+import time
 
 db = sqlite3.connect("bikecompany.db")
 db.isolation_level = None
@@ -13,15 +14,15 @@ and if implemented correctly it should output:
 Test 1: 130160
 
 """
-def total_distance(user):
-    df = pd.read_sql_query(
-        r"""SELECT name,SUM(distance) AS Totaldistance 
+
+def distance_of_user(user):
+
+   dist_of_user = db.execute(
+        r"""SELECT SUM(distance)
         FROM Trips 
         INNER JOIN Users ON Trips.user_id = Users.id 
-        GROUP BY user_id""", db)
-    df = df.set_index('name')
-    return print(f'The total distance of the {user} is: {df.at[user, "Totaldistance"]}')
-
+        WHERE Users.name=?;""",[user]).fetchone()
+   return print(f'In total, the {user} has driven {dist_of_user[0]} meters')
 
 """
 This function retrieves the average speed for all trips driven by a specific user rounding to two decimal spaces. E.g.
@@ -30,16 +31,16 @@ and if implemented correctly it should output:
 Test 2: 17.35
 """
 
+
 def speed_of_user(user):
-    df1 = pd.read_sql_query(
-        r"""SELECT User, all_distance / all_duration AS Speed
-        FROM (SELECT Users.name User,SUM(distance)/1000.00 all_distance ,SUM(duration)/60.00 all_duration
+    avg_spd_of_user = db.execute(
+        r"""SELECT ROUND((all_distance / all_duration),2)
+        FROM (SELECT Users.name,SUM(distance)/1000.00 all_distance ,SUM(duration)/60.00 all_duration
         FROM Trips
-        INNER JOIN Users
-        ON Users.id = Trips.user_id
-        GROUP BY Users.name)""", db)
-    df1 = df1.set_index('User')
-    return print(f'The speed of the {user} is: {df1.at[user, "Speed"]}')
+        INNER JOIN Users ON Users.id = Trips.user_id
+        WHERE Users.name=?);""",[user]).fetchone()
+    return print(f'The average speed for all trips driven by {user} is {avg_spd_of_user[0]} km/h.')
+
 
 """
 
@@ -99,5 +100,5 @@ def most_popular_start(city):
 
 if __name__ == "__main__":
     test_user = "user123"
-    total_distance(test_user)
+    distance_of_user(test_user)
     speed_of_user(test_user)
