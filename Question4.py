@@ -50,9 +50,8 @@ and if implemented correctly it should output:
 Test 3: [('city1', 58655), ('city10', 59296), ('city2', 60947)…]
 """
 
-
 def duration_in_each_city(day):
-    pass
+   pass
 
 
 """
@@ -66,6 +65,15 @@ Test 4: 43102
 
 
 def users_in_city(city):
+    users_city = db.execute(
+        f"""SELECT COUNT(DISTINCT user_id), cities.name
+        FROM Trips
+        INNER JOIN Stops ON Trips.from_id = Stops.id
+        INNER JOIN Cities ON Stops.city_id = Cities.id
+        WHERE cities.name=?
+        GROUP BY cities.name""", [city]).fetchone()
+    return print(f'The trips made in the {city} are {users_city[0]}')
+
     pass
 
 
@@ -78,10 +86,8 @@ Test 5: [('2021-06-01', 3362), ('2021-06-02', 3345),…]
 
 """
 
-
 def trips_on_each_day(city):
     pass
-
 
 """
 
@@ -92,13 +98,23 @@ Test 6: ('stop419', 1073)
 
 """
 
-
 def most_popular_start(city):
-    pass
+    stop_popular = db.execute(
+    f"""SELECT STOP, MAX(travelsmade), City
+    FROM(SELECT Stops.name STOP, Cities.name City, COUNT(DISTINCT Trips.id) AS travelsmade
+    FROM Trips
+    INNER JOIN Stops ON Trips.from_id = Stops.id
+    INNER JOIN Cities ON Stops.city_id = Cities.id
+    GROUP BY Stops.name)
+    WHERE City=?""",[city]).fetchone()
+    return print(f'The most popular stop of the {city} is: {stop_popular[0]} with {stop_popular[1]} stops')
 
 # Testing section
 
 if __name__ == "__main__":
     test_user = "user123"
+    test_city = 'city5'
     distance_of_user(test_user)
     speed_of_user(test_user)
+    most_popular_start(test_city)
+    users_in_city(test_city)
