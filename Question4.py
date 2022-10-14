@@ -92,7 +92,14 @@ Test 5: [('2021-06-01', 3362), ('2021-06-02', 3345),…]
 """
 
 def trips_on_each_day(city):
-    pass
+    trips_in_aCity_each_day = db.execute(
+        "SELECT day, COUNT(id)\
+         FROM Trips \
+         WHERE from_id IN (SELECT Stops.id \
+                           FROM Cities, Stops\
+                           WHERE Cities.id = Stops.city_id AND Cities.name=?)\
+                           GROUP BY day", [city]).fetchall()
+    return trips_in_aCity_each_day 
 
 """
 
@@ -114,14 +121,37 @@ def most_popular_start(city):
     WHERE City=?""",[city]).fetchone()
     return print(f'The most popular stop of the {city} is: {stop_popular[0]} with {stop_popular[1]} stops')
 
-# Testing section
-
+# SCENARIO 1 with all parameters initiliazed
 if __name__ == "__main__":
     test_user = "user123"
     test_city = 'city5'
     test_day = "2021-06-01"
+      
+    # Question 1 function call
     distance_of_user(test_user)
+      
+    # Question 2 function call
     speed_of_user(test_user)
-    most_popular_start(test_city)
-    users_in_city(test_city)
+      
+    # Question 3 function call
     duration_in_each_city(test_day)
+     
+    # Question 4 function call
+    users_in_city(test_city)
+   
+    # Question 5 function call
+    trips_on_each_day(test_city)
+      
+    # Question 6 function call  
+    most_popular_start(test_city)
+    
+# SCENARIO 2 : Improving the Python program to take input from the terminal and pass as parameter to distance_of_user function
+print('\nDISTANCE TRAVELLED BY USER')
+name = input('Enter the name of the user:')
+distance_of_user(name)
+
+# SCENARIO 3 : Take input from terminal and perform error handling for wrong user input
+# Question 2: Print the distance travelled by user taking input from terminal
+print('\nAVERAGE SPEED OF THE USER')
+name = input('Enter the name of the user:')
+speed_of_user(name)
