@@ -35,7 +35,7 @@ Test 2: 17.35
 def speed_of_user(user):
     avg_spd_of_user = db.execute(
         f"""SELECT ROUND((all_distance / all_duration),2)
-        FROM (SELECT Users.name,SUM(distance)/1000.00 all_distance ,SUM(duration)/60.00 all_duration
+        FROM (SELECT Users.name,SUM(distance)/1000.00 all_distance,SUM(duration)/60.00 all_duration
         FROM Trips
         INNER JOIN Users ON Users.id = Trips.user_id
         WHERE Users.name=?);""",[user]).fetchone()
@@ -51,7 +51,14 @@ Test 3: [('city1', 58655), ('city10', 59296), ('city2', 60947)…]
 """
 
 def duration_in_each_city(day):
-   pass
+    dur_in_city_per_day = db.execute(
+        f"""SELECT C.name, SUM(T.duration)\
+        FROM Bikes B, Trips T, Cities C\
+        WHERE B.city_id = C.id AND B.id = T.bike_id AND T.day=?\
+        GROUP BY C.id LIMIT 10""", [day]).fetchall()
+    listcities= dur_in_city_per_day
+    for row in listcities:
+        print(f"In the {row[0]},the bikes were driven: {row[1]} min.")
 
 
 """
@@ -73,8 +80,6 @@ def users_in_city(city):
         WHERE cities.name=?
         GROUP BY cities.name""", [city]).fetchone()
     return print(f'The trips made in the {city} are {users_city[0]}')
-
-    pass
 
 
 """
@@ -114,7 +119,9 @@ def most_popular_start(city):
 if __name__ == "__main__":
     test_user = "user123"
     test_city = 'city5'
+    test_day = "2021-06-01"
     distance_of_user(test_user)
     speed_of_user(test_user)
     most_popular_start(test_city)
     users_in_city(test_city)
+    duration_in_each_city(test_day)
